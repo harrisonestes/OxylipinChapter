@@ -1,0 +1,26 @@
+# Specify the HTCondor Universe (vanilla is the default)
+universe = vanilla
+#
+log = $(name)_hmmer.log
+error = $(name)_hmmer.err
+#
+# Specify your executable (single binary or a script that runs several
+executable = hmmer.sh
+arguments = $(name)
+#the hmmer outfiles are hugeeeeeeeeeee
+#output = $(NewProcess)_hmmer.out
+#
+#make sure it has gluster
+requirements = (Target.HasCHTCStaging == true) && (OpSysMajorVer == 7)
+#
+# Specify that HTCondor should transfer files to and from the
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files =/home/groups/keller_group/FungalGenomes/Programs/hmmer-3.3.2_compiled.tar.gz,/home/groups/keller_group/FungalGenomes/$(name).tar.gz
+#
+# Tell HTCondor what amount of compute resources
+request_cpus = 1
+request_memory = 3GB
+request_disk = 5GB
+#
+queue name from /home/groups/keller_group/FungalGenomes/QueueFile/genomes.txt

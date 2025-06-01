@@ -1,0 +1,34 @@
+# Specify the HTCondor Universe (vanilla is the default)
+universe = vanilla
+#
+# Log Out Error 
+log = $(genome)_PPOfind.log
+error = $(genome)_PPOfind.err
+#output = $(genome)_PPOfind.out
+#
+# Executable and arguments if any
+executable = doubledom_edited.sh
+arguments = $(genome) An_peroxidase p450
+#
+requirements = (Target.HasCHTCStaging == true)
+#
+# Inputs/Outputs
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = /home/groups/keller_group/FungalGenomes/$(genome)/$(genome)_prot.faa.gz, /home/groups/keller_group/FungalGenomes/$(genome)/$(genome)_hmmer.out
+transfer_output_files = $(genome)_doubledom.tar.gz
+#
+# Tell HTCondor what amount of compute resources
+request_cpus = 1
+request_memory = 400MB
+request_disk = 400MB
+# 
+# Increasing the number of files that can be run at one time
+## Allows it to also go to HTCondor Pools
++WantFlocking = true
+## Allows it to also go to OS Pool
++WantGlideIn = true
+#
+# Query files, use the testing or full file and comment out the other one
+#queue genome from /home/hpestes/complete_projects/DanteOxylipin/testlist.txt
+queue genome from /home/hpestes/complete_projects/DanteOxylipin/singlegenome_perspecies.txt
