@@ -459,69 +459,112 @@ Next, the mapfile used for the queuefile was used as a key to replace the genome
 awk 'NR==FNR{map[$2]=$1; next} {print (map[$1] ? map[$1] : $1), $2}' /Users/hpestes/Programs/Collaborations/Dante/OxylipinChapter/Scripts/fungalmap_oneentry.tsv combined_p450_results.tsv > combined_p450_results_named.tsv
 ```
 
-These were then overlayed by iTOL to the species tree.
+These were then overlayed by iTOL to the species tree. The tree was edited for publication in Adobe Illustrator.
 
-## TO BE REMOVED
+## Counting Lipoxygenase domains in representative genomes
 
-### Grant's work
+Lipoxygenase domains are annotated by Pfam/HMMER correctly, so a basic script will be required to harvest these, saved at LPOharvest.sh and LPOharvest.sub.
 
-Used Pfam to count how many each genome had to count number of P450's and cycloxygenase
+```bash
+#!/bin/bash
+# Written by HE, beginning 060125
+# This script is meant to find lipoxygenase domains in hmmer output files
+# It then prints the genome name, the number of lipoxygenases in teh genome, and the protein accessions of the lipoxygenases (with protein names separated by commas) in a tsv
+# Usage: ./LPOfind.sh <genome_name> <domain>
 
-### New material needed
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <genome_name> <domain_substring>"
+    exit 1
+fi
 
-Dante wants to reproduce this tree, but instead check for any proteins that have a cycloxygenase domain and find the number
-Also see what all cyclooxygenases are fused with
-Cycloxygenase tree with just Ascomycetes
+genome=$1
+domain=$2
+output_file="${genome}_LPOcount.tsv"
 
-Use ppoA-C as marker
+# Extract matching lines and process them
+awk -v domain="$domain" -v genome="$genome" '
+BEGIN {
+    FS = "\t";
+    count = 0;
+    accessions = "";
+    domains = "";
+}
+$0 !~ /^#/ && tolower($2) ~ tolower(domain) {
+    count++;
+    if (accessions == "") {
+        accessions = $1;
+        domains = $2;
+    } else {
+        accessions = accessions "," $1;
+        domains = domains "," $2;
+    }
+}
+END {
+    print genome "\t" count "\t" accessions "\t" domains;
+}' "${genome}_hmmer_output.txt" > "$output_file"
+```
 
-Things to make:
+Submit script to HTCondor:
 
-1. "Cycloxygenase-containing fungi" species tree
-2. "LOX doamin containing fungi" species
-3. "P450 monooxygenase-containing fungi" — know that this is not just oxylipins
-4. Genomic context (co-occurring domains in the same ORF)
-5. Cycloxygenase domain tree
-6. LOX domain tree
-\
+```bash
+# Specify the HTCondor Universe (vanilla is the default)
+universe = vanilla
+#
+# Log Out Error 
+log = $(genome)_LPOfind.log
+error = $(genome)_LPOfind.err
+#output = $(genome)_PPOfind.out
+#
+# Executable and arguments if any
+executable = LPOfind.sh
+arguments = $(genome) Lipoxygenase
+#
+requirements = (Target.HasCHTCStaging == true)
+#
+# Inputs/Outputs
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_input_files = /home/groups/keller_group/FungalGenomes/$(genome)/$(genome)_hmmer.out
+transfer_output_files = $(genome)_LPOcount.tsv
+#
+# Tell HTCondor what amount of compute resources
+request_cpus = 1
+request_memory = 300MB
+request_disk = 300MB
+# 
+# Increasing the number of files that can be run at one time
+## Allows it to also go to HTCondor Pools
++WantFlocking = true
+## Allows it to also go to OS Pool
++WantGlideIn = true
+#
+# Query files, use the testing or full file and comment out the other one
+queue genome from /home/hpestes/complete_projects/DanteOxylipin/testlist.txt
+#queue genome from /home/hpestes/complete_projects/DanteOxylipin/singlegenome_perspecies.txt
+```
 
-hydroxyastochrome (HAS/HOS) chelates
+These outputs were moved to a local destination where the previous command to annotate the genome names was applied. Final overlays were completed via iTOL and Adobe Illustrator.
 
-- terazin d
+## Aspergillus PPO tree
 
-Most of work will be on the enzyme portion, which is already written.
+Representatives of the Aspergillus genus were selected. These proteins were chosen from the previous harvesting step of PPOs, and trimmed based on InterPro domain identifications to where the protein begins at the beginning of the dioxygenase and ending at the exact end of the p450. These sequences were saved to AspPPOseq.faa.
 
-Due June 1
+Next, mafft was used for alignment of these proteins:
 
-Two kinds of enzymes:
+```bash
 
-- PPOs (dioxygenases), almost have a cytochrome P450 fused
-    Sometimes also
+```
 
-1. Species Tree — Tree with one rep per species except
+Then, trimal was used to trim the alignment via the strict gappyout option:
 
-- CEA10 and Af293
-- Some fusarium
+```bash
 
-Doesnt care about standalone heme peroxidase (dioxygenase)
+```
 
-Count of how many per species
+Finally, IQTree2 with ModelFinder was run to find the best tree.
 
-2.Species Tree showing lipoxygenases with counts
+```bash
 
-Do circular trees
+```
 
-Slack has path
-
-3.Phylogenetic tree of the doxic sip enzymes in Aspergilli unrooted
-
-- Af293
-- Nidulans
-- Flavus
-- Niger
-- Terreus
-- Oryzae
-
-Animal heme peroxidase
-
-Dante bumped email on 5/5/25
+The output tree was annotated in Adobe Illustrator.
