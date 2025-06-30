@@ -20,6 +20,11 @@ Lipoxygenases are denoted by Pfam as "Lipoxygenases".
 
 For many of the "mining" scripts, basic bash commands. The anaconda package manager was used in addition to this for phylogenetic tree programs. The environment had the following programs and versions:
 
+- iTOL web server, accessed 062225
+- MAFFT v7.526
+- trimAl v1.4.rev22
+- IQ-TREE multicore version 2.3.6 for MacOS ARM 64-bit
+
 Additionally, HMMER was run against all available genomes, with one representative genome per species being chosen for downstream analyses.
 
 ## Species tree and used genomes
