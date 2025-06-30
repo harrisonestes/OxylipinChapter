@@ -447,7 +447,7 @@ if __name__ == "__main__":
     merge_p450_files()
 ```
 
-Due to the handling methods of files in the local method, any genomes only containing non-p450 An_peroxidase domains were removed from the list. To overcome this, the follwoing command was run to find what genomes were not present:
+Due to the handling methods of files in the local method, any genomes only containing non-p450 An_peroxidase domains were removed from the list. To overcome this, the following command was run to find what genomes were not present:
 
 ```bash
 comm -23 <(sort /Users/hpestes/Programs/Collaborations/Dante/OxylipinChapter/Scripts/queuefile_053125.txt) <(tail -n +2 combined_p450_results.tsv | cut -f1 | sort)
@@ -549,22 +549,29 @@ These outputs were moved to a local destination where the previous command to an
 
 Representatives of the Aspergillus genus were selected. These proteins were chosen from the previous harvesting step of PPOs, and trimmed based on InterPro domain identifications to where the protein begins at the beginning of the dioxygenase and ending at the exact end of the p450. These sequences were saved to AspPPOseq.faa.
 
+nidulans    "CBF69709.1,CBF85912.1,CBF76249.1"
+flavus  "RAQ42372.1,RAQ46208.1,RAQ53268.1,RAQ45225.1"
+oryzae  "OOO07742.1,OOO07799.1,OOO09892.1,OOO11534.1,OOO10188.1"
+fumigatus   "EAL84400.2,EAL89712.1,EAL92371.2"
+terreus "GES58595.1,GES59806.1,GES60941.1,GES61775.1"
+niger   "CAK37756.1,CAK38852.1,CAK41061.1"
+
 Next, mafft was used for alignment of these proteins:
 
 ```bash
-
+mafft AspPPOseq.faa > AspPPOseq.aln
 ```
 
 Then, trimal was used to trim the alignment via the strict gappyout option:
 
 ```bash
-
+trimal -gappyout -in AspPPOseq.aln -out AspPPOseq_trimmed.aln
 ```
 
 Finally, IQTree2 with ModelFinder was run to find the best tree.
 
 ```bash
-
+iqtree2 -B 1000 -T 14 -s AspPPOseq_trimmed.aln
 ```
 
 The output tree was annotated in Adobe Illustrator.
