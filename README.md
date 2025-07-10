@@ -1,4 +1,4 @@
-# Species and Gene Trees for Oxylipin Book Chapter
+# Species and Gene Trees for the *Mycota* Oxylipin Book Chapter
 
 ## Completed by Harrison Estes with Dante Calise, Keller Lab, UW-Madison
 
